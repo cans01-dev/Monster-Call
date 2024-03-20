@@ -6,14 +6,14 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class modalopenbutton extends Component
+class breadcrumb extends Component
 {
     /**
      * Create a new component instance.
      */
-    public function __construct(public $target)
+    public function __construct()
     {
-        $this->target = $target;
+        //
     }
 
     /**
@@ -21,6 +21,6 @@ class modalopenbutton extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.modalopenbutton');
+        return view('components.breadcrumb');
     }
 }

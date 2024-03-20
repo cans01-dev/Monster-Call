@@ -5,8 +5,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{{ config('app.name') }}</title>
 	<script src="https://kit.fontawesome.com/285c1d0655.js" crossorigin="anonymous"></script>
-  @vite(['resources/css/markdown.css', 'resources/css/style.css', 'resources/js/app.js'])
-<body class="">
+  @vite(['resources/js/app.js', 'resources/css/markdown.css', 'resources/css/style.css'])
+<body style="background-color: <?= env('BACKGROUND_COLOR') ?>;">
 <header class="sticky-top" id="header-navber">
 	<nav class="navbar navbar-expand-md bg-body-tertiary">
 		<div class="container-fluid">
@@ -62,7 +62,7 @@
 							</a>
 						</li>
 					@endif
-                    @if(Auth::user()['role'] === 'ADMIN')
+          @if(Auth::user()['role'] === 'ADMIN')
 						<li class="nav-item dropdown">
 							<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 								管理者メニュー
@@ -182,7 +182,9 @@
 					@else
 						<div class="px-3 py-2 text-center">
 							<p>アンケートがありません</p>
-							<a class="btn btn-outline-info" href="/home#create">アンケートを作成する</a>
+							<button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#surveysCreateModal">
+								アンケートを作成する
+							</button>
 						</div>
 					@endif
 					<li class="nav-item">
@@ -258,3 +260,20 @@
 	</header>
 <main>
 <div class="main-container position-relative">
+
+<x-modal id="surveysCreateModal" title="アンケートを新規作成">
+	<form action="/users/{{ $user->id }}/surveys" method="post">
+		@csrf
+		<div class="mb-3">
+			<label class="form-label">アンケートのタイトル</label>
+			<input type="text" name="title" class="form-control" placeholder="〇〇のアンケート"  required>
+		</div>
+		<div class="mb-3">
+			<label class="form-label">アンケートの説明（任意）</label>
+			<textarea class="form-control" name="note" rows="3"></textarea>
+		</div>
+		<div class="text-end">
+			<button type="submit" class="btn btn-primary">作成</button>
+		</div>
+	</form>
+</x-modal>

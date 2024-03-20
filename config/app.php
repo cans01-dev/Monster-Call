@@ -5,6 +5,13 @@ use Illuminate\Support\ServiceProvider;
 
 return [
 
+    'voices' => [
+        ['name' => 'ja-JP-Standard-A', 'gender' => 'FEMALE'],
+        ['name' => 'ja-JP-Standard-B', 'gender' => 'FEMALE'],
+        ['name' => 'ja-JP-Standard-C', 'gender' => 'MALE'],
+        ['name' => 'ja-JP-Standard-D', 'gender' => 'MALE']
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

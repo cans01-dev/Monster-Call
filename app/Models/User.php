@@ -42,4 +42,34 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function send_emails() {
+        return $this->hasMany(SendEmail::class);
+    }
+
+    public function surveys() {
+        return $this->hasMany(Survey::class);
+    }
+
+    public function role_bg() {
+        switch ($this->role) {
+            case 'GENERAL':
+                return 'primary';
+            case 'ADMIN':
+                return 'info';
+            case 'SUSPENDED':
+                return 'secondary';
+        }
+    }
+
+    public function role_text() {
+        switch ($this->role) {
+            case 'GENERAL':
+                return '一般';
+            case 'ADMIN':
+                return '管理者';
+            case 'SUSPENDED':
+                return '利用停止';
+        }
+    }
 }

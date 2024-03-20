@@ -21,6 +21,7 @@ return new class extends Migration
             $table->timestamps();
             // ここから
             $table->enum('role', ['GENERAL', 'ADMIN', 'SUSPENDED']);
+            $table->integer('number_of_lines');
         });
     }
 
