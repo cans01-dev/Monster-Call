@@ -4,9 +4,31 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{{ config('app.name') }}</title>
+	<link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+	<link rel="stylesheet" href="{{ asset('css/markdown.css') }}">
+	<script src="{{ asset('js/index.js') }}" defer></script>
 	<script src="https://kit.fontawesome.com/285c1d0655.js" crossorigin="anonymous"></script>
-  @vite(['resources/js/app.js', 'resources/css/markdown.css', 'resources/css/style.css'])
 <body style="background-color: <?= env('BACKGROUND_COLOR') ?>;">
+	@php
+	$survey_id = Auth::user()->survey->id;
+	$menu_list = [
+		["/home", 'ホーム', 'house'],
+		["/surveys/{$survey_id}", '会話と音声', 'comments'],
+		["/surveys/{$survey_id}/calendar", 'カレンダー', 'calendar'],
+		["/surveys/{$survey_id}/stats", '統計', 'chart-simple'],
+		["/surveys/{$survey_id}/asset", 'アセット', 'bookmark'],
+		["/surveys/{$survey_id}/calls", 'コール一覧', 'phone'],
+		["/support", 'ドキュメント', 'circle-question'],
+	];
+	$admin_menu_list = [
+		["/admin/users", 'ユーザー管理', 'users'],
+		["/admin/reserves", '全ての予約', 'table-list'],
+		["/admin/gen_reserve_log", '予約情報ファイル生成ログ', 'file-arrow-up'],
+		["/admin/receive_result_log", '結果ファイル受信ログ', 'file-arrow-down'],
+	];
+	$current_url_path = parse_url(URL::current(), PHP_URL_PATH);
+	@endphp
 <header class="sticky-top" id="header-navber">
 	<nav class="navbar navbar-expand-md bg-body-tertiary">
 		<div class="container-fluid">
@@ -18,90 +40,36 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav">
-					<li class="nav-item">
-						<a class="nav-link" href="/home">
-							<span class="text-center d-inline-block me-1" style="width: 20px;">
-								<i class="fa-solid fa-house"></i>
-							</span>ホーム
-						</a>
-					</li>
-					@if (false)
+					@foreach ($menu_list as $item)
 						<li class="nav-item">
-							<a class="nav-link" href="/surveys/<?= $sv["id"] ?>">
+							<a class="nav-link" href="{{ $item[0] }}">
 								<span class="text-center d-inline-block me-1" style="width: 20px;">
-									<i class="fa-solid fa-comments"></i>
-								</span>会話と音声
+									<i class="fa-solid fa-{{ $item[2] }}"></i>
+								</span>{{ $item[1] }}
 							</a>
 						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/surveys/<?= $sv["id"] ?>/calendar">
-								<span class="text-center d-inline-block me-1" style="width: 20px;">
-									<i class="fa-solid fa-calendar"></i>
-								</span>カレンダー
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/surveys/<?= $sv["id"] ?>/stats">
-								<span class="text-center d-inline-block me-1" style="width: 20px;">
-									<i class="fa-solid fa-chart-simple"></i>
-								</span>統計
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/surveys/<?= $sv["id"] ?>/calls">
-								<span class="text-center d-inline-block me-1" style="width: 20px;">
-									<i class="fa-solid fa-phone"></i>
-								</span>コール一覧
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="/support" class="nav-link">
-								<span class="text-center d-inline-block me-1" style="width: 20px;">
-									<i class="fa-solid fa-circle-question"></i>
-								</span>ドキュメント
-							</a>
-						</li>
-					@endif
-          @if(Auth::user()['role'] === 'ADMIN')
+					@endforeach
+          @if(Auth::user()->role === 'ADMIN')
 						<li class="nav-item dropdown">
 							<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 								管理者メニュー
 							</button>
 							<ul class="dropdown-menu">
-								<li class="dropdown-item">
-									<a href="/admin/users" class="nav-link">
-										<span class="text-center d-inline-block me-2" style="width: 20px;">
-											<i class="fa-solid fa-users"></i>
-										</span>ユーザー管理
-									</a>
-								</li>
-								<li class="dropdown-item">
-									<a href="/admin/reserves" class="nav-link">
-										<span class="text-center d-inline-block me-2" style="width: 20px;">
-											<i class="fa-solid fa-table-list fa-lg"></i>
-										</span>全ての予約
-									</a>
-								</li>
-								<li class="dropdown-item">
-									<a href="/admin/gen_reserve_log" class="nav-link">
-										<span class="text-center d-inline-block me-2" style="width: 20px;">
-											<i class="fa-solid fa-file-arrow-up fa-lg"></i>
-										</span>予約情報ファイル生成ログ
-									</a>
-								</li>
-								<li class="dropdown-item">
-									<a href="/admin/receive_result_log" class="nav-link">
-										<span class="text-center d-inline-block me-2" style="width: 20px;">
-											<i class="fa-solid fa-file-arrow-down fa-lg"></i>
-										</span>結果ファイル受信ログ
-									</a>
-								</li>
+								@foreach ($admin_menu_list as $item)
+									<li class="dropdown-item">
+										<a href="{{ $item[0] }}" class="nav-link">
+											<span class="text-center d-inline-block me-2" style="width: 20px;">
+												<i class="fa-solid fa-{{ $item[2] }}"></i>
+											</span>{{ $item[1] }}
+										</a>
+									</li>
+								@endforeach
 							</ul>
 						</li>
 					@endif
 					<li class="nav-item dropdown">
 						<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-							{{ Auth::user()["email"] }}
+							{{ Auth::user()->email }}
 						</button>
 						<ul class="dropdown-menu">
 							<li><a class="dropdown-item" href="/account">アカウント設定</a></li>
@@ -128,104 +96,31 @@
 			<hr>
 			<nav id="navbar-example2" class="mb-auto">
 				<ul class="nav nav-pills vstack gap-1">
-					<li class="nav-item">
-						<a
-						class="nav-link <?= request()->server->get('REDIRECT_URL') === "/home" ? "active" : "link-body-emphasis" ?>"
-						href="/home"
-						>
-							<span class="text-center d-inline-block me-2" style="width: 24px;">
-								<i class="fa-solid fa-house fa-lg"></i>
-							</span>ホーム
-						</a>
-					</li>
-					@if (false)
+					@foreach ($menu_list as $item)
 						<li class="nav-item">
 							<a
-								class="nav-link <?= request()->server->get('REDIRECT_URL') === "/surveys/{$sv["id"]}" ? "active" : "link-body-emphasis" ?>"
-								href="/surveys/<?= $sv["id"] ?>"
+								class="nav-link {{ $current_url_path === $item[0] ? 'active' : 'link-body-emphasis' }}"
+								href="{{ $item[0] }}"
 							>
 								<span class="text-center d-inline-block me-2" style="width: 24px;">
-									<i class="fa-solid fa-comments fa-lg"></i>
-								</span>会話と音声
+									<i class="fa-solid fa-{{ $item[2] }} fa-lg"></i>
+								</span>{{ $item[1] }}
 							</a>
 						</li>
-						<li class="nav-item">
-							<a
-								class="nav-link <?= request()->server->get('REDIRECT_URL') === "/surveys/{$sv["id"]}/calendar" ? "active" : "link-body-emphasis" ?>"
-								href="/surveys/<?= $sv["id"] ?>/calendar"
-							>
-								<span class="text-center d-inline-block me-2" style="width: 24px;">
-									<i class="fa-solid fa-calendar fa-lg"></i>
-								</span>カレンダー
-							</a>
-						</li>
-						<li class="nav-item">
-							<a
-								class="nav-link <?= request()->server->get('REDIRECT_URL') === "/surveys/{$sv["id"]}/stats" ? "active" : "link-body-emphasis" ?>"
-								href="/surveys/<?= $sv["id"] ?>/stats"
-							>
-								<span class="text-center d-inline-block me-2" style="width: 24px;">
-									<i class="fa-solid fa-chart-simple fa-lg"></i>
-								</span>統計
-							</a>
-						</li>
-						<li class="nav-item">
-							<a
-								class="nav-link <?= request()->server->get('REDIRECT_URL') === "/surveys/{$sv["id"]}/calls" ? "active" : "link-body-emphasis" ?>"
-								href="/surveys/<?= $sv["id"] ?>/calls"
-							>
-								<span class="text-center d-inline-block me-2" style="width: 24px;">
-									<i class="fa-solid fa-phone fa-lg"></i>
-								</span>コール一覧
-							</a>
-						</li>
-					@else
-						<div class="px-3 py-2 text-center">
-							<p>アンケートがありません</p>
-							<button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#surveysCreateModal">
-								アンケートを作成する
-							</button>
-						</div>
-					@endif
-					<li class="nav-item">
-						<a href="/support" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/support" ? "active" : "link-body-emphasis" ?>">
-							<span class="text-center d-inline-block me-2" style="width: 24px;">
-								<i class="fa-solid fa-circle-question fa-lg"></i>
-							</span>ドキュメント
-						</a>
-					</li>
+					@endforeach
 					@if(Auth::user()['role'] === 'ADMIN')
 						<li class="nav-item my-2 p-1 border border-2 rounded-2">
 							<h4 class="fs-6">管理者メニュー</h4>
 							<ul class="nav nav-pills vstack gap-1">
-								<li class="nav-item">
-									<a href="/admin/users" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/admin/users" ? "active" : "link-body-emphasis" ?>">
-										<span class="text-center d-inline-block me-2" style="width: 24px;">
-											<i class="fa-solid fa-users fa-lg"></i>
-										</span>ユーザー管理
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="/admin/reserves" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/admin/reserves" ? "active" : "link-body-emphasis" ?>">
-										<span class="text-center d-inline-block me-2" style="width: 24px;">
-											<i class="fa-solid fa-table-list fa-lg"></i>
-										</span>全ての予約
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="/admin/gen_reserve_log" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/admin/gen_reserve_log" ? "active" : "link-body-emphasis" ?>">
-										<span class="text-center d-inline-block me-2" style="width: 24px;">
-											<i class="fa-solid fa-file-arrow-up fa-lg"></i>
-										</span>予約情報ファイル生成ログ
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="/admin/receive_result_log" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/admin/receive_result_log" ? "active" : "link-body-emphasis" ?>">
-										<span class="text-center d-inline-block me-2" style="width: 24px;">
-											<i class="fa-solid fa-file-arrow-down fa-lg"></i>
-										</span>結果ファイル受信ログ
-									</a>
-								</li>
+								@foreach ($admin_menu_list as $item)
+									<li class="nav-item">
+										<a href="{{ $item[0] }}" class="nav-link <?= request()->server->get('REDIRECT_URL') === "/admin/users" ? "active" : "link-body-emphasis" ?>">
+											<span class="text-center d-inline-block me-2" style="width: 24px;">
+												<i class="fa-solid fa-{{ $item[2] }} fa-lg"></i>
+											</span>{{ $item[1] }}
+										</a>
+									</li>
+								@endforeach
 							</ul>
 						</li>
 					@endif
@@ -243,7 +138,7 @@
 			<hr>
 			<div class="dropdown">
 				<button class="btn btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					{{ Auth::user()["email"] }}
+					{{ Auth::user()->email }}
 				</button>
 				<ul class="dropdown-menu dropdown-menu-dark">
 					<li><a class="dropdown-item" href="/users/{{ Auth::user()['id'] }}">アカウント設定</a></li>
@@ -262,7 +157,7 @@
 <div class="main-container position-relative">
 
 <x-modal id="surveysCreateModal" title="アンケートを新規作成">
-	<form action="/users/{{ $user->id }}/surveys" method="post">
+	<form action="/users/{{ Auth::user()->id }}/surveys" method="post">
 		@csrf
 		<div class="mb-3">
 			<label class="form-label">アンケートのタイトル</label>
@@ -271,6 +166,19 @@
 		<div class="mb-3">
 			<label class="form-label">アンケートの説明（任意）</label>
 			<textarea class="form-control" name="note" rows="3"></textarea>
+		</div>
+		<div class="mb-3">
+			<label class="form-label">
+				生成する音声のタイプ
+				<x-infobtn />
+			</label>
+			<select class="form-select" name="voice_name">
+				@foreach (config('app.voices') as $voice)
+					<option value="{{ $voice['name'] }}">
+						{{ $voice['name'] }} ({{ $voice['gender'] }})
+					</option>
+				@endforeach
+			</select>
 		</div>
 		<div class="text-end">
 			<button type="submit" class="btn btn-primary">作成</button>

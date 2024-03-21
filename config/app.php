@@ -12,6 +12,8 @@ return [
         ['name' => 'ja-JP-Standard-D', 'gender' => 'MALE']
     ],
 
+    'default_greeting_file_name' => 'defgre.wav',
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -175,6 +177,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\MyUtilServiceProvider::class
     ])->toArray(),
 
     /*
@@ -190,6 +193,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'MyUtil' => App\Facades\MyUtilFacade::class
     ])->toArray(),
 
 ];

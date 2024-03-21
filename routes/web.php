@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\SendEmailController;
+use App\Http\Controllers\SurveyController;
+use App\Http\Controllers\UserController;
 use App\Models\SendEmail;
 use App\Models\Survey;
 use App\Models\User;
@@ -55,65 +59,33 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::prefix('/users/{user}')->group(function () {
-        Route::get('/', function (User $user) {
-            return view('user', ['user' => $user]);
-        });
-    
-        Route::post('/send_emails', function (Request $request, User $user) {
-            $user->send_emails()->create([
-                'email' => $request->email,
-                'enabled' => $request->input('enabled', false)
-            ]);
-            return back()->with('toast', ['success', '送信先メールアドレスを追加しました']);
-        });
-
-        Route::put('/password', function (Request $request, User $user) {
-            if (!password_verify($request->old_password, $user->password)) {
-                return back()->with('toast', ['danger', '現在のパスワードが異なります']);
-            }
-            if ($request->new_password !== $request->new_password_confirm) {
-                return back()->with('toast', ['danger', '新しいパスワードの再入力が正しくありません']);
-            }
-            $user->update([
-                'password' => $request->new_password
-            ]);
-            return back()->with('toast', ['success', 'パスワードを変更しました']);
-        });
-
-        Route::post('/surveys', function (Request $request, User $user) {
-            if ($user->surveys) {
-                return back()->with('toast', ['danger', '現在のユーザーでは一つ以上のアンケートを作成することはできません']);
-            }
-            $survey = $user->surveys()->create([
-                'user_id' => $user->id,
-                'title' => $request->title,
-                'note' => $request->note,
-                'voice_name' => config('app.voices')[0]['name']
-            ]);
-            return redirect("/surveys/{$survey->id}")->with('toast', ['success', 'アンケートを新規作成しました']);
+        Route::controller(UserController::class)->group(function () {
+            Route::get('/', 'show');
+            Route::put('/', 'update');
+            Route::post('/send_emails', 'store_send_email');
+            Route::put('/password', 'update_password');
+            Route::post('/surveys', 'store_survey');
         });
     });
 
     Route::prefix('/send_emails/{send_email}')->group(function () {
-        Route::put('/', function (Request $request, SendEmail $send_email) {
-            if ($request->user()->cannot('update', $send_email)) abort(403);
-            $send_email->update([
-                'email' => $request->email,
-                'enabled' => $request->input('enabled', false)
-            ]);
-            return back()->with('toast', ['success', '送信先メールアドレスを変更しました']);
-        });
-        
-        Route::delete('/', function (Request $request, SendEmail $send_email) {
-            if ($request->user()->cannot('forceDelete', $send_email)) abort(403);
-            $send_email->delete();
-            return back()->with('toast', ['info', '送信先メールアドレスを削除しました']);
+        Route::controller(SendEmailController::class)->group(function () {
+            Route::put('/', 'update');
+            Route::delete('/', 'destroy');
         });
     });
 
     Route::prefix('/surveys/{survey}')->group(function () {
-        Route::get('/', function (Request $request, Survey $survey) {
-            return view('survey', ['survey' => $survey]);
+        Route::controller(SurveyController::class)->group(function () {
+            Route::get('/', 'show');
+        });
+    });
+
+    Route::prefix('/faqs/{faq}')->group(function () {
+        Route::controller(FaqController::class)->group(function () {
+            Route::get('/', 'show');
+            Route::put('/', 'update');
+            Route::delete('/', 'destroy');
         });
     });
 });

@@ -31,7 +31,7 @@
         </div>
       </div>
       <hr class="my-3">
-      @if ($survey->endings)
+      @if ($survey->endings->isNotEmpty())
         <div class="vstack gap-3 mb-3">
           @foreach ($survey->endings as $ending)
             <div class="card">
@@ -59,9 +59,9 @@
           @endforeach
         </div>
       @else
-        <x-noContent id="エンディングがありません" />
+        <x-noContent>エンディングがありません</x-noContent>
       @endif
-      <x-modalOpenButton id="endingsCreateModal" />
+      <x-modalOpenButton target="endingsCreateModal" />
     </section>
     <hr class="my-5">
     <section id="faqs">
@@ -69,7 +69,7 @@
       <div class="form-text mb-2">
         一番上に配置された質問が最初の質問（グリーティングの後に再生される質問）となります
       </div>
-      @if ($survey->faqs)
+      @if ($survey->faqs->isNotEmpty())
         <div class="vstack gap-3 mb-3">
           @foreach ($survey->faqs as $faq)
             <div class="card" id="faq{{ $faq->id }}">
@@ -159,7 +159,7 @@
       @else
         <x-noContent>質問がありません</x-noContent>
       @endif
-      <x-modalOpenButton id="faqsCreateModal" />
+      <x-modalOpenButton target="faqsCreateModal" />
     </section>
   </div>
   <div class="flex-shrink-0 sticky-aside" style="width: 300px;">
@@ -226,15 +226,9 @@
   </div>
 </div>
 
-<x-modal ("audioModal", "読み上げ音声を再生", <<<EOL
-  <div class="text-center py-2">
-    <audio controls></audio>
-  </div>
-EOL); }}
-
-<x-modal ("faqsCreateModal", "質問を新規作成", <<<EOL
+<x-modal id="faqsCreateModal" title="質問を新規作成">
   <form action="/faqs" method="post">
-    CSRF
+    @csrf
     <div class="mb-3">
       <label class="form-label">タイトル</label>
       <input type="text" name="title" class="form-control" placeholder="〇〇に関する質問" required>
@@ -244,43 +238,42 @@ EOL); }}
       <textarea name="text" class="form-control" rows="5" required></textarea>
     </div>
     <div class="text-end">
-      <input type="hidden" name="survey_id" value="{$survey->id}">
+      <input type="hidden" name="survey_id" value="{{ $survey->id}}">
       <button type="submit" class="btn btn-primary">作成</button>
     </div>
     <div class="form-text">
       質問を作成すると自動的に「0: 聞き直し」の選択肢が設定されます
     </div>
   </form>
-EOL); }}
+</x-modal>
 
-@$greeting_voice_file_url = url("/storage/users/{$survey->user_id}/{$survey->greeting_voice_file}"
-<x-modal ("greetingModal", "グリーティングを編集", <<<EOL
+<x-modal id="greetingModal" title="グリーティングを編集">
   <div class="text-center mb-3">
-    <audio controls src="{$greeting_voice_file_url}"></audio>
+    <audio controls src="{{ $survey->greeting_voice_file_url() }}"></audio>
   </div>
-  <form action="/surveys/{$survey->id}/greeting" method="post">
-    CSRF
-    METHOD_PUT
+  <form action="/surveys/{{ $survey->id }}/greeting" method="post">
+    @csrf
+    @method('PUT')
     <div class="mb-3">
       <label class="form-label">テキスト</label>
-      <textarea name="greeting" class="form-control" rows="5">{$survey->greeting}</textarea>
+      <textarea name="greeting" class="form-control" rows="5">{{ $survey->greeting }}</textarea>
     </div>
     <div class="text-end">
-      <input type="hidden" name="survey_id" value="{$survey->id}">
+      <input type="hidden" name="survey_id" value="{{ $survey->id }}">
       <button type="submit" class="btn btn-primary">更新</button>
     </div>
     <div class="form-text">更新すると入力されたテキストから音声ファイルが自動的に生成されます</div>
   </form>
-EOL); }}
+</x-modal>
 
-<x-modal ("advancedSettingsModal", "詳細設定", <<<EOL
+<x-modal id="advancedSettingsModal" title="詳細設定">
   <div class="mb-3">
     <form
-    action="/surveys/{$survey->id}/all_voice_file_re_gen"
+    action="/surveys/{{ $survey->id }}/all_voice_file_re_gen"
     method="post"
     onsubmit="return window.confirm('本当に実行しますか？この操作には時間がかかることがあります')"
     >
-      CSRF
+      @csrf
       <button class="btn btn-outline-danger">全ての音声ファイルを更新する</button>
       <div class="form-text">
         このアンケートのグリーティングや全てのエンディング、質問の音声ファイルが現在の設定で再生成されます。
@@ -289,23 +282,23 @@ EOL); }}
   </div>
   <div class="mb-3">
     <form
-    action="/surveys/{$survey->id}"
+    action="/surveys/{{ $survey->id }}"
     method="post"
     onsubmit="return window.confirm('本当に削除しますか？')"
     >
-      CSRF
-      METHOD_DELETE
+      @csrf
+      @method('DELETE')
       <button class="btn btn-outline-danger">アンケートを削除する</button>
       <div class="form-text">
         このアンケートに関連する全てのデータ（質問、予約、結果など）が削除されます。
       </div>
     </form>
   </div>
-EOL); }}
+</x-modal>
 
-<x-modal ("endingsCreateModal", "エンディングを作成", <<<EOL
+<x-modal id="endingsCreateModal" title="エンディングを作成">
   <form action="/endings" method="post">
-    CSRF
+    @csrf
     <div class="mb-3">
       <label class="form-label">エンディングのタイトル</label>
       <input type="text" name="title" class="form-control" placeholder="〇〇のエンディング" required>
@@ -315,42 +308,41 @@ EOL); }}
       <textarea name="text" class="form-control" rows="5" required></textarea>
     </div>
     <div class="text-end">
-      <input type="hidden" name="survey_id" value="{$survey->id} }}">
+      <input type="hidden" name="survey_id" value="{{ $survey->id }}">
       <button type="submit" class="btn btn-primary">作成</button>
     </div>
   </form>
-EOL); }}
+</x-modal>
 
-<!-- endingModals -->
 @foreach ($survey->endings as $ending)
-  <x-modal ("endingModal{$ending->id}", "エンディングを編集", <<<EOM
-    <form action="/endings/{$ending->id}" method="post">
-      CSRF
-      METHOD_PUT
+  <x-modal id="endingModal{{ $ending->id}}" title="エンディングを編集">
+    <form action="/endings/{{ $ending->id}}" method="post">
+      @csrf
+      @method('PUT')
       <div class="mb-3">
         <label class="form-label">エンディングのタイトル</label>
-        <input type="text" name="title" class="form-control" value="{$ending->title}">
+        <input type="text" name="title" class="form-control" value="{{ $ending->title }}">
       </div>
       <div class="mb-3">
         <label class="form-label">テキスト</label>
-        <textarea name="text" class="form-control" rows="5">{$ending->text}</textarea>
+        <textarea name="text" class="form-control" rows="5">{{ $ending->text }}</textarea>
       </div>
       <div class="text-end">
         <button type="submit" class="btn btn-primary">更新</button>
       </div>
       <div class="form-text">更新すると入力されたテキストから音声ファイルが自動的に生成されます</div>
     </form>
-    <form action="/endings/{$ending->id}" method="post"  onsubmit="return window.confirm('本当に削除しますか？')">
-      CSRF
-      METHOD_DELETE
+    <form action="/endings/{{ $ending->id }}" method="post"  onsubmit="return window.confirm('本当に削除しますか？')">
+      @csrf
+      @method('DELETE')
       <div class="text-end">
         <button type="submit" class="btn btn-link">このエンディングを削除</button>
       </div>
     </form>
-  EOM) }}
+  </x-modal>
 @endforeach
 
-  @if (Auth::user()["id"] !== $user["id"])
+  @if (Auth::user()->id !== $survey->user->id)
     <x-watchonadmin>管理者として閲覧専用でこのページを閲覧しています</x-watchonadmin>
   @endif
 </x-layout>

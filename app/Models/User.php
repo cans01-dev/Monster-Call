@@ -47,8 +47,8 @@ class User extends Authenticatable
         return $this->hasMany(SendEmail::class);
     }
 
-    public function surveys() {
-        return $this->hasMany(Survey::class);
+    public function survey() {
+        return $this->hasOne(Survey::class);
     }
 
     public function role_bg() {

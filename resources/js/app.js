@@ -1,6 +1,3 @@
-import '../scss/app.scss';
-
-import './src/modal';
-import './src/popover';
-import './src/toast';
-import './src/tooltip';
+import './src/modal.js';
+import './src/toast.js';
+import './src/tooltip.js';

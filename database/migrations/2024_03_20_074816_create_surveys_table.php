@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('title');
             $table->text('note');
-            $table->text('greeting');
-            $table->string('greeting_voice_file');
+            $table->text('greeting')->default('こんにちは、これはデフォルトのアンケートです');
+            $table->string('greeting_voice_file')->default(config('app.default_greeting_file_name'));
             $table->string('voice_name');
+            $table->foreignId('success_ending_id')->nullable()->constrained('endings')->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
     }

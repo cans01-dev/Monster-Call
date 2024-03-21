@@ -48,7 +48,7 @@
       <section id="sendEmails">
         <x-h3>送信先メールアドレス</x-h3>
         <div style="max-width: 480px;">
-          @if ($user->send_emails)
+          @if ($user->send_emails->isNotEmpty())
             @foreach ($user->send_emails as $send_email)
               <div class="card mb-2">
                 <div class="card-body">
@@ -129,7 +129,7 @@
         <div class="form-check form-switch mb-3">
           <label class="form-label">無効 / 有効</label>
           <input class="form-check-input" type="checkbox" value="1" name="enabled"
-          {{ $send_email->enabled ? 'checked' : '' }}
+          {{ $send_email->enabled ? 'checked' : '' }} />
         </div>
         <div class="text-end">
           <button type="submit" class="btn btn-dark">更新</button>
