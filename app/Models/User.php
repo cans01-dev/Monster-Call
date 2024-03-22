@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role_id',
+        'number_of_lines'
     ];
 
     /**
@@ -43,6 +45,10 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function isAdmin() {
+        return $this->role_id === 2;
+    }
+
     public function send_emails() {
         return $this->hasMany(SendEmail::class);
     }
@@ -51,25 +57,7 @@ class User extends Authenticatable
         return $this->hasOne(Survey::class);
     }
 
-    public function role_bg() {
-        switch ($this->role) {
-            case 'GENERAL':
-                return 'primary';
-            case 'ADMIN':
-                return 'info';
-            case 'SUSPENDED':
-                return 'secondary';
-        }
-    }
-
-    public function role_text() {
-        switch ($this->role) {
-            case 'GENERAL':
-                return '一般';
-            case 'ADMIN':
-                return '管理者';
-            case 'SUSPENDED':
-                return '利用停止';
-        }
+    public function role() {
+        return $this->belongsTo(Role::class);
     }
 }

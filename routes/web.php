@@ -1,12 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\EndingController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\SendEmailController;
 use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\UserController;
-use App\Models\SendEmail;
-use App\Models\Survey;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -24,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/login', function () {
     if (Auth::check()) return redirect('home');
-    return view('login');
+    return view('pages.login');
 })->name('login');
 
 Route::post('/login', function (Request $request) {
@@ -47,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::get('/home', function () {
-        return view('home');
+        return view('pages.home');
     })->name('home');
     
     Route::post('/logout', function (Request $request) {
@@ -58,34 +57,45 @@ Route::middleware(['auth'])->group(function () {
         return redirect('/login')->with('toast', ['info', 'ログアウトしました']);
     });
 
-    Route::prefix('/users/{user}')->group(function () {
-        Route::controller(UserController::class)->group(function () {
-            Route::get('/', 'show');
-            Route::put('/', 'update');
-            Route::post('/send_emails', 'store_send_email');
-            Route::put('/password', 'update_password');
-            Route::post('/surveys', 'store_survey');
-        });
+    Route::prefix('/users/{user}')->controller(UserController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::put('/', 'update');
+        Route::post('/send_emails', 'store_send_email');
+        Route::put('/password', 'update_password');
+        Route::post('/surveys', 'store_survey');
     });
 
-    Route::prefix('/send_emails/{send_email}')->group(function () {
-        Route::controller(SendEmailController::class)->group(function () {
-            Route::put('/', 'update');
-            Route::delete('/', 'destroy');
-        });
+    Route::prefix('/send_emails/{send_email}')->controller(SendEmailController::class)->group(function () {
+        Route::put('/', 'update');
+        Route::delete('/', 'destroy');
     });
 
-    Route::prefix('/surveys/{survey}')->group(function () {
-        Route::controller(SurveyController::class)->group(function () {
-            Route::get('/', 'show');
-        });
+    Route::prefix('/surveys/{survey}')->controller(SurveyController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::put('/', 'update');
+        Route::post('/endings', 'store_ending');
+        Route::post('/faqs', 'store_faq');
+        Route::post('/greeting', 'update_greeting');
     });
 
-    Route::prefix('/faqs/{faq}')->group(function () {
-        Route::controller(FaqController::class)->group(function () {
-            Route::get('/', 'show');
-            Route::put('/', 'update');
-            Route::delete('/', 'destroy');
+    Route::prefix('/endings/{ending}')->controller(EndingController::class)->group(function () {
+        Route::put('/', 'update');
+    });
+
+    Route::prefix('/faqs/{faq}')->controller(FaqController::class)->group(function () {
+        Route::get('/', 'show');
+        Route::put('/', 'update');
+        Route::delete('/', 'destroy');
+    });
+
+    Route::middleware(['admin'])->prefix('/admin')->group(function () {
+        Route::prefix('/users')->controller(AdminUserController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::put('/{user}', 'update');
+            Route::delete('/{user}', 'destroy');
+            Route::post('/{user}/password', 'update_password');
+            Route::post('/{user}/clean_dir', 'clean_dir');
         });
     });
 });

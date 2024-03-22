@@ -1,14 +1,14 @@
 <x-layout>
   <x-breadcrumb>
     <li class="breadcrumb-item"><a href="/">ホーム</a></li>
-    <li class="breadcrumb-item"><a href="/surveys/{{ $survey->id }}">{{ $survey->title }}</a></li>
+    <li class="breadcrumb-item"><a href="/surveys/{{ $faq->survey->id }}">{{ $faq->survey->title }}</a></li>
     <li class="breadcrumb-item active">質問: {{ $faq->title }}</li>
   </x-breadcrumb>
   <x-h2>質問: {{ $faq->title }}</x-h2>
   <div class="d-flex gap-3">
     <div class="w-100">
       <section id="summary">
-        <x-h33>設定</x-h33>
+        <x-h3>設定</x-h3>
         <form method="post">
           @csrf
           @method('PUT')
@@ -56,12 +56,12 @@
                   @method('PUT')
                   <input type="hidden" name="title" value="{{ $option->title }}" required>
                   <select class="form-select" name="next" onchange="submit(this.form)" required>
-                    @foreach ($survey["faqs"] as $f)
+                    @foreach ($faq->survey["faqs"] as $f)
                       <option value="f{{ $f["id"] }}" {{ $option->next_faq_id === $f["id"] ? "selected" : ""; }}>
                         {{ $f["id"] === $option->faq_id ? "【聞き直し】": "【質問】"; }}{{ $f["title"] }}
                       </option>
                     @endforeach
-                    @foreach ($survey->endings as $ending)
+                    @foreach ($faq->survey->endings as $ending)
                       <option value="e{{ $ending->id }}" {{ $option->next_ending_id === $ending->id ? "selected" : ""; }}>
                         【エンディング】{{ $ending->title }}
                       </option>
@@ -89,14 +89,14 @@
                 <div class="btn-group" role="group" aria-label="Basic outlined example">
                   <button
                   type="submit"
-                  class="btn btn-outline-primary" {{ !$option->dial ? "disabled" : ""; }}
+                  class="btn btn-outline-primary" {{ $option->dial === 0 ? "disabled" : ""; }}
                   form="upOption{{ $option->id }}"
                   >
                     <i class="fa-solid fa-angle-up"></i>
                   </button>
                   <button
                   type="submit"
-                  class="btn btn-outline-primary" {{ $option->dial === max(array_column($faq->options, "dial")) ? "disabled" : ""; }}
+                  class="btn btn-outline-primary" {{ $option->dial === $faq->options->max("dial") ? "disabled" : ""; }}
                   form="downOption{{ $option->id }}"
                   >
                     <i class="fa-solid fa-angle-down"></i>
@@ -116,7 +116,7 @@
           <x-h4>音声</x-h4>
           @if ($faq->voice_file)
             <div class="text-center py-2">
-              <audio controls src="{{ url("/storage/users/{$survey["user_id"]}/{$faq->voice_file}") }}"></audio>
+              <audio controls src="{{ $faq->voice_file_url() }}"></audio>
             </div>
           @else
             <x-noContent>音声ファイルがありません</x-noContent>
@@ -138,7 +138,7 @@
       <textarea name="text" class="form-control" rows="5" required></textarea>
     </div>
     <div class="text-end">
-      <input type="hidden" name="survey_id" value="{{ $survey->id}}">
+      <input type="hidden" name="survey_id" value="{{ $faq->survey->id}}">
       <button type="submit" class="btn btn-primary">作成</button>
     </div>
     <div class="form-text">
@@ -157,12 +157,12 @@
     <div class="mb-3">
       <label class="form-label">NEXT</label>
       <select class="form-select" name="next" required>
-        @foreach ($survey["faqs"] as $f)
+        @foreach ($faq->survey["faqs"] as $f)
           <option value="f{{ $f["id"] }}" {{ $option->next_faq_id === $f["id"] ? "selected" : ""; }}>
             {{ $f["id"] === $option->faq_id ? "【聞き直し】": "【質問】"; }}{{ $f["title"] }}
           </option>
         @endforeach
-        @foreach ($survey->endings as $ending)
+        @foreach ($faq->survey->endings as $ending)
           <option value="e{{ $ending->id }}" {{ $option->next_ending_id === $ending->id ? "selected" : ""; }}>
             【エンディング】{{ $ending->title }}
           </option>
@@ -174,7 +174,7 @@
     </div>
     <div class="mb-3">
       <label class="form-label">ダイヤル番号</label>
-      <input type="number" class="form-control" value="{{ count($faq->options) ? max(array_column($faq->options, "dial")) + 1 : 0 }}" disabled>
+      <input type="number" class="form-control" value="{{ count($faq->options) ? $faq->options->max("dial") + 1 : 0 }}" disabled>
       <div id="passwordHelpBlock" class="form-text">
         ダイヤル番号は作成後に質問ページの選択肢一覧から変更できます
       </div>
@@ -198,12 +198,12 @@
       <div class="mb-3">
         <label class="form-label">次の操作</label>
         <select class="form-select" name="next" onchange="submit(this.form)" required>
-          @foreach ($survey["faqs"] as $f)
+          @foreach ($faq->survey["faqs"] as $f)
             <option value="f{{ $f["id"] }}" {{ $option->next_faq_id === $f["id"] ? "selected" : ""; }}>
               {{ $f["id"] === $option->faq_id ? "【聞き直し】": "【質問】"; }}{{ $f["title"] }}
             </option>
           @endforeach
-          @foreach ($survey->endings as $ending)
+          @foreach ($faq->survey->endings as $ending)
             <option value="e{{ $ending->id }}" {{ $option->next_ending_id === $ending->id ? "selected" : ""; }}>
               【エンディング】{{ $ending->title }}
             </option>
@@ -232,7 +232,7 @@
 @endforeach
 
 
-  @if (Auth::user()->id !== $survey->user->id)
+  @if (Auth::user()->id !== $faq->survey->user->id)
     <x-watchonadmin>管理者として閲覧専用でこのページを閲覧しています</x-watchonadmin>
   @endif
 </x-layout>

@@ -10,11 +10,17 @@ class Ending extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'text',
+        'voice_file'
+    ];
+
     public function survey() {
         return $this->belongsTo(Survey::class);
     }
 
     public function voice_file_url() {
-        return Storage::disk('public')->url("users/{$this->survey->user->id}/{$this->voice_file}");
+        return Storage::url("users/{$this->survey->user->id}/{$this->voice_file}");
     }
 }

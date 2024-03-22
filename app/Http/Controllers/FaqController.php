@@ -10,15 +10,15 @@ use Illuminate\Support\Facades\Storage;
 class FaqController extends Controller
 {
     public function show (Faq $faq) {
-        return view('faq', ['faq' => $faq]);
+        return view('pages.faq', ['faq' => $faq]);
     }
 
     public function update (Request $request, Faq $faq) {
         if ($request->user()->cannot('update', $faq)) abort(403);
 
-        $file_name = uniqid();
+        $file_name = uniqid() . '.wav';
         $file_contents = MyUtil::text_to_speech($request->text, $faq->survey->voice_name);
-        Storage::disk('public')->put("users/{$faq->survey->user_id}/{$file_name}.wav", $file_contents);
+        Storage::put("users/{$faq->survey->user->id}/{$file_name}", $file_contents);
       
         $faq->update([
             'title' => $request->title,

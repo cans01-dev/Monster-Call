@@ -20,7 +20,7 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             // ここから
-            $table->enum('role', ['GENERAL', 'ADMIN', 'SUSPENDED']);
+            $table->foreignId('role_id')->constrained();
             $table->integer('number_of_lines');
         });
     }

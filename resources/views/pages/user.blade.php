@@ -15,8 +15,8 @@
             <div class="mb-3">
               <label class="form-label">ステータス</label>
               <div>
-                <span class="badge fs-6 bg-{{ $user->role_bg() }}">
-                  {{ $user->role_text() }}
+                <span class="badge fs-6 bg-{{ $user->role->bg }}">
+                  {{ $user->role->title }}
                 </span>
               </div>
             </div>

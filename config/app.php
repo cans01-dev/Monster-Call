@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
-
     'voices' => [
         ['name' => 'ja-JP-Standard-A', 'gender' => 'FEMALE'],
         ['name' => 'ja-JP-Standard-B', 'gender' => 'FEMALE'],

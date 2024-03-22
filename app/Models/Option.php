@@ -9,11 +9,17 @@ class Option extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'title',
+        'dial',
+        'next_faq_id'
+    ];
+
     public function next_faq() {
-        return $this->hasOne(Faq::class);
+        return $this->belongsTo(Faq::class);
     }
     
     public function next_ending() {
-        return $this->hasOne(Ending::class);
+        return $this->belongsTo(Ending::class);
     }
 }

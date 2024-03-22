@@ -114,11 +114,6 @@
                     </tbody>
                   </table>
                 @endif
-                @if (!$faq->voice_file)
-                  <div class="alert alert-danger mt-3 mb-0" role="alert">
-                    質問の読み上げ文章を更新して音声ファイルを生成してください
-                  </div>
-                @endif
                 <div class="position-absolute top-0 end-0 py-2 px-3">
                   @if (!$faq->order_num)
                     <span class="badge bg-info me-2">最初の質問</span>
@@ -134,14 +129,14 @@
                   <div class="btn-group me-2" role="group" aria-label="Basic outlined example">
                     <button
                     type="submit"
-                    class="btn btn-outline-primary" {{ !$faq->order_num ? "disabled" : ""; }}
+                    class="btn btn-outline-primary" {{ $faq->order_num === 0 ? "disabled" : ""; }}
                     form="upFaq{{ $faq->id }}"
                     >
                       <i class="fa-solid fa-angle-up"></i>
                     </button>
                     <button
                     type="submit"
-                    class="btn btn-outline-primary" {{ $faq->order_num === max(array_column($survey->faqs, 'order_num')) ? 'disabled' : ''; }}
+                    class="btn btn-outline-primary" {{ $faq->order_num === $survey->faqs->max('order_num') ? 'disabled' : ''; }}
                     form="downFaq{{ $faq->id }}"
                     >
                       <i class="fa-solid fa-angle-down"></i>
@@ -227,7 +222,7 @@
 </div>
 
 <x-modal id="faqsCreateModal" title="質問を新規作成">
-  <form action="/faqs" method="post">
+  <form action="/surveys/{{ $survey->id }}/faqs" method="post">
     @csrf
     <div class="mb-3">
       <label class="form-label">タイトル</label>
@@ -253,7 +248,6 @@
   </div>
   <form action="/surveys/{{ $survey->id }}/greeting" method="post">
     @csrf
-    @method('PUT')
     <div class="mb-3">
       <label class="form-label">テキスト</label>
       <textarea name="greeting" class="form-control" rows="5">{{ $survey->greeting }}</textarea>
@@ -297,7 +291,7 @@
 </x-modal>
 
 <x-modal id="endingsCreateModal" title="エンディングを作成">
-  <form action="/endings" method="post">
+  <form action="/surveys/{{ $survey->id }}/endings" method="post">
     @csrf
     <div class="mb-3">
       <label class="form-label">エンディングのタイトル</label>
@@ -316,6 +310,9 @@
 
 @foreach ($survey->endings as $ending)
   <x-modal id="endingModal{{ $ending->id}}" title="エンディングを編集">
+    <div class="text-center mb-3">
+      <audio controls src="{{ $ending->voice_file_url() }}"></audio>
+    </div>
     <form action="/endings/{{ $ending->id}}" method="post">
       @csrf
       @method('PUT')

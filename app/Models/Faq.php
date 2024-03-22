@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Faq extends Model
 {
@@ -12,6 +13,7 @@ class Faq extends Model
     protected $fillable = [
         'title',
         'text',
+        'order_num',
         'voice_file'
     ];
 
@@ -20,6 +22,10 @@ class Faq extends Model
     }
 
     public function survey() {
-        return $this->hasOne(Survey::class);
+        return $this->belongsTo(Survey::class);
+    }
+
+    public function voice_file_url() {
+        return Storage::url("users/{$this->survey->user->id}/{$this->voice_file}");
     }
 }

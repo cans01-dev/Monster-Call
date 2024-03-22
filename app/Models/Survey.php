@@ -13,7 +13,10 @@ class Survey extends Model
     protected $fillable = [
         'title',
         'note',
-        'voice_name'
+        'voice_name',
+        'success_ending_id',
+        'greeting',
+        'greeting_voice_file'
     ];
 
     public function faqs() {
@@ -29,6 +32,6 @@ class Survey extends Model
     }
 
     public function greeting_voice_file_url() {
-        return Storage::disk('public')->url("users/{$this->user->id}/{$this->greeting_voice_file}");
+        return Storage::url("users/{$this->user->id}/{$this->greeting_voice_file}");
     }
 }

@@ -49,7 +49,7 @@
 							</a>
 						</li>
 					@endforeach
-          @if(Auth::user()->role === 'ADMIN')
+          @if(Auth::user()->isAdmin())
 						<li class="nav-item dropdown">
 							<button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
 								管理者メニュー
@@ -108,7 +108,7 @@
 							</a>
 						</li>
 					@endforeach
-					@if(Auth::user()['role'] === 'ADMIN')
+					@if(Auth::user()->isAdmin())
 						<li class="nav-item my-2 p-1 border border-2 rounded-2">
 							<h4 class="fs-6">管理者メニュー</h4>
 							<ul class="nav nav-pills vstack gap-1">

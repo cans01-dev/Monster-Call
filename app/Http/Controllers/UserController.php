@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     public function show (User $user) {
-        return view('user', ['user' => $user]);
+        return view('pages.user', ['user' => $user]);
     }
 
     public function update (Request $request, User $user) {
